@@ -79,4 +79,6 @@ for category in categories:
         print(f"\tЦена: {product.price}")
         print(f"\tКоличество: {product.quantity}\n")
 
+# Начальные изменения для оптимизации базы данных
+
 
