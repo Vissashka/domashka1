@@ -5,3 +5,5 @@ __pycache__/        # Папка с кэшированными файлами к
 .idea/              # IDEA-проект PyCharm
 *.log               # Лог-файлы
 *.swp               # Временные файлы vim
+echo "domashka2/" >> .gitignore
+
