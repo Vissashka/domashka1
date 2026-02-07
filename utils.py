@@ -22,3 +22,4 @@ def load_data_from_json(filename):
 
     return categories
 
+

@@ -1,40 +1,69 @@
 import pytest
 from src.models import Product, Category
 
+
 @pytest.fixture
-def sample_products():
-    return [
-        Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5),
-        Product("Iphone 15", "512GB, Gray space", 210000.0, 8),
-        Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
-    ]
+def sample_product():
+    return Product('Телефон', 'Смартфон последнего поколения', 50_000, 10)
 
-def test_product_attributes(sample_products):
-    product = sample_products[0]
-    assert product.name == "Samsung Galaxy S23 Ultra"
-    assert product.description == "256GB, Серый цвет, 200MP камера"
-    assert product.price == 180000.0
-    assert product.quantity == 5
 
-def test_category_attributes(sample_products):
-    category = Category("Смартфоны", "Модели современных устройств", sample_products[:2])
-    assert hasattr(category, 'name'), "Объект Category не имеет атрибута 'name'"
-    assert hasattr(category, 'description'), "Объект Category не имеет атрибута 'description'"
-    assert hasattr(category, 'products'), "Объект Category не имеет атрибута 'products'"
-    assert category.name == "Смартфоны"
-    assert category.description == "Модели современных устройств"
-    assert len(category.products) == 2  # Теперь должно быть ровно 2 элемента
+@pytest.fixture
+def empty_category():
+    return Category()
 
-def test_additional_category_and_product(sample_products):
-    new_product = Product("55\" QLED 4K TV", "Фоновая подсветка, высокое разрешение", 123000.0, 7)
-    second_category = Category("Телевизоры", "Современное телевидение", [new_product])
-    assert second_category.name == "Телевизоры"
-    assert len(second_category.products) == 1  # Должен быть ровно 1 элемент
 
-def test_add_product_to_category(sample_products):
-    category = Category("Электроника", "Различные устройства")
-    first_product = sample_products[0]
-    category.add_product(first_product)
-    assert len(category.products) == 1  # Должен быть ровно 1 элемент
+class TestProduct:
+    def test_init(self, sample_product):
+        assert isinstance(sample_product, Product)
+        assert sample_product.name == 'Телефон'
+        assert sample_product.description == 'Смартфон последнего поколения'
+        assert sample_product.price == 50_000
+        assert sample_product.quantity == 10
+
+    def test_getters_and_setters(self, sample_product):
+        with pytest.raises(ValueError):
+            sample_product.price = -100
+        with pytest.raises(ValueError):
+            sample_product.quantity = -5
+
+        sample_product.price = 60_000
+        assert sample_product.price == 60_000
+
+    def test_validate_price(self):
+        assert Product.validate_price('100') == True
+        assert Product.validate_price('-100') == False
+        assert Product.validate_price('abc') == False
+
+    def test_new_product_classmethod(self):
+        product_data = {'name': 'Ноутбук', 'description': 'Игровой ноутбук', 'price': '80000', 'quantity': '5'}
+        new_product = Product.new_product(product_data)
+        assert isinstance(new_product, Product)
+        assert new_product.name == 'Ноутбук'
+        assert new_product.price == 80000
+        assert new_product.quantity == 5
+
+        updated_product = Product.new_product({
+            'name': 'Ноутбук',
+            'description': 'Игровой ноутбук',  # добавили back описание
+            'price': '90000',
+            'quantity': '3'
+        }, [new_product])
+        assert updated_product.quantity == 8
+        assert updated_product.price == 90000
+
+
+class TestCategory:
+    def test_add_product(self, empty_category, sample_product):
+        empty_category.add_product(sample_product)
+        assert len(empty_category._Category__products) == 1
+        assert empty_category.products.startswith('Телефон')
+
+    def test_repr(self, empty_category, sample_product):
+        empty_category.add_product(sample_product)
+        repr_str = str(empty_category).replace('\n', '')  # очищаем строку от переносов
+        expected_output = 'Category(Телефон, 50000.00 руб., остаток: 10)'
+        assert repr_str.strip() == expected_output.strip()
+
+
 
 

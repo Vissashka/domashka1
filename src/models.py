@@ -10,85 +10,113 @@ class Product:
         :param price: цена товара
         :param quantity: количество товара
         """
-        self.name = name
-        self.description = description
-        self._price = price
-        self.quantity = quantity
+        self.__name = name  # Приватный атрибут названия
+        self.__description = description  # Приватный атрибут описания
+        self.__price = price  # Приватный атрибут цены
+        self.__quantity = quantity  # Приватный атрибут количества
 
-    @classmethod
-    def new_product(cls, data):
-        """Создает новый продукт на основе словаря."""
-        name = data.get('name')
-        description = data.get('description')
-        price = float(data.get('price'))  # Конвертируем в число
-        quantity = int(data.get('quantity'))  # Конвертируем в целое число
-        return cls(name, description, price, quantity)
+    # Свойства для приватных атрибутов (геттеры и сеттеры)
 
-    @classmethod
-    def new_product(cls, data, existing_products=None):
-        """Создает новый продукт либо объединяет с существующими товарами."""
-        if existing_products is not None:
-            similar_product = next(
-                (p for p in existing_products if p.name == data.get('name')), None
-            )
-            if similar_product:
-                similar_product.quantity += int(data.get('quantity'))
-                similar_product.price = max(similar_product.price, float(data.get('price')))
-                return similar_product
-        return cls.new_product(data)
+    @property
+    def name(self):
+        return self.__name
 
-
+    @property
+    def description(self):
+        return self.__description
 
     @property
     def price(self):
-        """Геттер для цены."""
-        return self._price
+        return self.__price
 
     @price.setter
     def price(self, value):
-        """Сеттер для цены с проверкой на допустимое значение."""
         if value <= 0:
-            raise ValueError("Цена не должна быть нулевой или отрицательной!")
-        self._price = value
+            raise ValueError("Ошибка: цена не должна быть нулевой или отрицательной!")
+        else:
+            self.__price = value
 
-    @price.setter
-    def price(self, value):
-        """Сеттер для цены с дополнительной защитой при попытке снижения стоимости."""
-        if value <= 0:
-            raise ValueError("Цена не должна быть нулевой или отрицательной!")
-        elif value < self._price:
-            answer = input(f'Вы пытаетесь снизить цену на "{self.name}". Продолжить? (y/n)')
-            if answer.strip().lower() != 'y':
-                print("Изменение цены отменено.")
-                return
-        self._price = value
+    @property
+    def quantity(self):
+        return self.__quantity
+
+    @quantity.setter
+    def quantity(self, value):
+        if value < 0:
+            raise ValueError("Количество товара не может быть отрицательным!")
+        else:
+            self.__quantity = value
+
+    @staticmethod
+    def validate_price(price):
+        try:
+            price_value = float(price)
+            if price_value <= 0:
+                raise ValueError("Цена должна быть положительной")
+            return True
+        except (ValueError, TypeError):
+            return False
+
+    @classmethod
+    def new_product(cls, data, existing_products=None):
+        """
+        Класс-метод создает новый продукт или увеличивает количество у существующего товара.
+
+        :param data: словарь с параметрами товара
+        :param existing_products: список существующих объектов Product
+        :return: объект типа Product
+        """
+        name = data['name']
+        description = data['description']
+        price = float(data['price'])
+        quantity = int(data['quantity'])
+
+        if existing_products is not None:
+            for product in existing_products:
+                if product.name == name:
+                    product.quantity += quantity  # Увеличение количества через сеттер
+                    if product.price < price:
+                        product.price = price  # Выбираем наибольшую цену
+                    return product
+
+        return cls(name, description, price, quantity)
+
+    def __repr__(self):
+        return f'Product({self.name}, {self.price}, {self.quantity})'
 
 
 
 class Category:
-    category_count = 0
-    product_count = 0
+    """Класс представляет собой категорию товаров."""
 
-    def __init__(self, name, description, products=None):
-        if products is None:
-            products = []
-        self.name = name
-        self.description = description
-        self._products = products
-        Category.category_count += 1
-        # При создании категории суммируем начальное количество продуктов
-        Category.product_count += sum(p.quantity for p in products)
+    def __init__(self):
+        """
+        Инициализирует категорию с пустым приватным списком товаров.
+        """
+        self.__products = []  # Приватный атрибут-список товаров
 
     def add_product(self, product):
-        """Добавляет продукт в категорию."""
-        self._products.append(product)
-        # Количество продуктов увеличивается только при добавлении
-        Category.product_count += product.quantity
+        """
+        Добавляет продукт в категорию.
+
+        :param product: объект класса Product
+        """
+        self.__products.append(product)
 
     @property
     def products(self):
-        """Возвращает список продуктов."""
-        return self._products
+        """
+        Возвращает представление списка товаров категории в удобной форме строки.
+        """
+        result = ''
+        for product in self.__products:
+            result += f'{product.name}, {product.price:.2f} руб., остаток: {product.quantity}\n'
+        return result[:-1]
+
+    def __repr__(self):
+        return f'Category(\n{self.products})\n'
+
+
 
 
 
