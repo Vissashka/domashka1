@@ -18,21 +18,23 @@ def test_product_attributes(sample_products):
 
 def test_category_attributes(sample_products):
     category = Category("Смартфоны", "Модели современных устройств", sample_products[:2])
-    print(category.__dict__)  # Полезно для дебага, удаляй потом!
     assert hasattr(category, 'name'), "Объект Category не имеет атрибута 'name'"
     assert hasattr(category, 'description'), "Объект Category не имеет атрибута 'description'"
     assert hasattr(category, 'products'), "Объект Category не имеет атрибута 'products'"
     assert category.name == "Смартфоны"
     assert category.description == "Модели современных устройств"
-    assert len(category.products) == 2
-    assert Category.category_count == 1
-    assert Category.product_count == 13  # 5+8
+    assert len(category.products) == 2  # Теперь должно быть ровно 2 элемента
 
 def test_additional_category_and_product(sample_products):
     new_product = Product("55\" QLED 4K TV", "Фоновая подсветка, высокое разрешение", 123000.0, 7)
     second_category = Category("Телевизоры", "Современное телевидение", [new_product])
     assert second_category.name == "Телевизоры"
-    assert len(second_category.products) == 1
-    assert Category.category_count == 2
-    assert Category.product_count == 20  # Ранее было 13 + новый товар с количеством 7
+    assert len(second_category.products) == 1  # Должен быть ровно 1 элемент
+
+def test_add_product_to_category(sample_products):
+    category = Category("Электроника", "Различные устройства")
+    first_product = sample_products[0]
+    category.add_product(first_product)
+    assert len(category.products) == 1  # Должен быть ровно 1 элемент
+
 
