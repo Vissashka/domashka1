@@ -56,14 +56,16 @@ class TestCategory:
     def test_add_product(self, empty_category, sample_product):
         empty_category.add_product(sample_product)
         assert len(empty_category._Category__products) == 1
-        assert empty_category.products.startswith('Телефон')
+        assert empty_category.products == 'Телефон, 50000.00 руб. Остаток: 10 шт.'
+
+    def test_counter_increase(self, empty_category, sample_product):
+        initial_count = Category._counter
+        empty_category.add_product(sample_product)
+        assert Category._counter == initial_count + 1
 
     def test_repr(self, empty_category, sample_product):
         empty_category.add_product(sample_product)
-        repr_str = str(empty_category).replace('\n', '')  # очищаем строку от переносов
-        expected_output = 'Category(Телефон, 50000.00 руб., остаток: 10)'
-        assert repr_str.strip() == expected_output.strip()
-
-
-
+        repr_str = str(empty_category).strip().replace('\n', '')
+        expected_output = 'Category(Телефон, 50000.00 руб. Остаток: 10 шт.)'
+        assert repr_str == expected_output
 

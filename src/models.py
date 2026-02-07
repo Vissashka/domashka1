@@ -60,14 +60,14 @@ class Product:
     @classmethod
     def new_product(cls, data, existing_products=None):
         """
-        Класс-метод создает новый продукт или увеличивает количество у существующего товара.
+        Класс-метод создаёт новый продукт или увеличивает количество у существующего товара.
 
         :param data: словарь с параметрами товара
         :param existing_products: список существующих объектов Product
         :return: объект типа Product
         """
         name = data['name']
-        description = data['description']
+        description = data.get('description', '')
         price = float(data['price'])
         quantity = int(data['quantity'])
 
@@ -89,6 +89,8 @@ class Product:
 class Category:
     """Класс представляет собой категорию товаров."""
 
+    _counter = 0  # Счётчик товаров
+
     def __init__(self):
         """
         Инициализирует категорию с пустым приватным списком товаров.
@@ -97,24 +99,27 @@ class Category:
 
     def add_product(self, product):
         """
-        Добавляет продукт в категорию.
+        Добавляет продукт в категорию и увеличивает счётчик товаров.
 
         :param product: объект класса Product
         """
         self.__products.append(product)
+        Category._counter += 1  # Инкрементируем счётчик
 
     @property
     def products(self):
         """
-        Возвращает представление списка товаров категории в удобной форме строки.
+        Возвращает строковое представление списка товаров категории.
         """
-        result = ''
+        result = []
         for product in self.__products:
-            result += f'{product.name}, {product.price:.2f} руб., остаток: {product.quantity}\n'
-        return result[:-1]
+            result.append(f"{product.name}, {product.price:.2f} руб. Остаток: {product.quantity} шт.")
+        return "\n".join(result)
 
     def __repr__(self):
         return f'Category(\n{self.products})\n'
+
+
 
 
 
